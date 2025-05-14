@@ -1,23 +1,23 @@
-// app/play/[pace].tsx
+// app/play/index.tsx
 import { Audio } from "expo-av";
-import { router, useGlobalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function PlayScreen() {
-  const { pace } = useGlobalSearchParams();
+  const { pace, sound, mode, strideLength } = useLocalSearchParams();
   const [isPlaying, setIsPlaying] = useState(false);
   const soundRef = useRef<Audio.Sound | null>(null);
-  const intervalRef = useRef<NodeJS.Timer | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const parsePaceToBpm = (pace: string) => {
-    const match = pace.match(/^(\d)(\d)(\d)?$/); // e.g. 530 => "5:30"
+    if (!pace || typeof pace !== "string") return 180;
+    const match = pace.match(/^(\d)(\d)(\d)?$/); // e.g. "530" -> 5:30
     if (!match) return 180;
     const min = parseInt(match[1], 10);
     const sec = parseInt(match[2] + (match[3] || "0"), 10);
     const totalSec = min * 60 + sec;
-    const bpm = (3600 / totalSec) * 2; // e.g. 180 bpm = 2 steps per second
-    return bpm;
+    return (3600 / totalSec) * 2; // 2 steps per second equivalent bpm
   };
 
   const playClick = async () => {
@@ -27,10 +27,10 @@ export default function PlayScreen() {
   };
 
   const startLoop = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require("../../assets/sounds/click.mp3") // 경로 조정 필요
+    const { sound: newSound } = await Audio.Sound.createAsync(
+      getSoundFile(sound)
     );
-    soundRef.current = sound;
+    soundRef.current = newSound;
 
     const bpm = parsePaceToBpm(pace as string);
     const interval = 60000 / bpm;
@@ -51,6 +51,22 @@ export default function PlayScreen() {
     }
   };
 
+  const getSoundFile = (name: string | string[] | undefined) => {
+    if (Array.isArray(name)) name = name[0];
+    switch (name) {
+      case "beep":
+        return require("../../assets/sounds/beep.mp3");
+      case "clave":
+        return require("../../assets/sounds/clave.mp3");
+      case "footstep":
+        return require("../../assets/sounds/footstep.mp3");
+      case "snare":
+        return require("../../assets/sounds/snare.mp3");
+      default:
+        return require("../../assets/sounds/metronome.mp3");
+    }
+  };
+
   useEffect(() => {
     return () => {
       stopLoop();
@@ -59,13 +75,16 @@ export default function PlayScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pace}>
-        선택된 페이스: {pace?.slice(0, -2)}:{pace?.slice(-2)}
+      <Text style={styles.label}>
+        Pace: {pace?.slice(0, -2)}:{pace?.slice(-2)}
       </Text>
+      <Text style={styles.label}>Sound: {sound}</Text>
+      <Text style={styles.label}>Mode: {mode}</Text>
+      <Text style={styles.label}>Stride Length: {strideLength} cm</Text>
       <View style={styles.buttons}>
-        <Button title="시작" onPress={startLoop} disabled={isPlaying} />
-        <Button title="정지" onPress={stopLoop} disabled={!isPlaying} />
-        <Button title="뒤로가기" onPress={() => router.back()} />
+        <Button title="Start" onPress={startLoop} disabled={isPlaying} />
+        <Button title="Stop" onPress={stopLoop} disabled={!isPlaying} />
+        <Button title="Go Back" onPress={() => router.back()} />
       </View>
     </View>
   );
@@ -74,10 +93,17 @@ export default function PlayScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    gap: 24
+    alignItems: "center",
+    padding: 24,
+    gap: 16
   },
-  pace: { fontSize: 28, fontWeight: "bold" },
-  buttons: { gap: 12 }
+  label: {
+    fontSize: 20,
+    fontWeight: "600"
+  },
+  buttons: {
+    gap: 12,
+    marginTop: 24
+  }
 });
