@@ -1,24 +1,15 @@
 // app/play/index.tsx
+import { calculateStepIntervalMs } from "@/utils/calculateInterval";
 import { Audio } from "expo-av";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function PlayScreen() {
-  const { pace, sound, mode, strideLength } = useLocalSearchParams();
+  const { pace, sound, strideLength, halfStep } = useLocalSearchParams();
   const [isPlaying, setIsPlaying] = useState(false);
   const soundRef = useRef<Audio.Sound | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const parsePaceToBpm = (pace: string) => {
-    if (!pace || typeof pace !== "string") return 180;
-    const match = pace.match(/^(\d)(\d)(\d)?$/); // e.g. "530" -> 5:30
-    if (!match) return 180;
-    const min = parseInt(match[1], 10);
-    const sec = parseInt(match[2] + (match[3] || "0"), 10);
-    const totalSec = min * 60 + sec;
-    return (3600 / totalSec) * 2; // 2 steps per second equivalent bpm
-  };
 
   const playClick = async () => {
     if (soundRef.current) {
@@ -32,13 +23,18 @@ export default function PlayScreen() {
     );
     soundRef.current = newSound;
 
-    const bpm = parsePaceToBpm(pace as string);
-    const interval = 60000 / bpm;
+    const rawInterval = calculateStepIntervalMs(
+      `${pace?.slice(0, -2)}:${pace?.slice(-2)}`,
+      parseFloat(strideLength as string)
+    );
+
+    const intervalMs = halfStep === "true" ? rawInterval * 2 : rawInterval;
 
     setIsPlaying(true);
+
     intervalRef.current = setInterval(() => {
       playClick();
-    }, interval);
+    }, intervalMs);
   };
 
   const stopLoop = async () => {
@@ -79,7 +75,9 @@ export default function PlayScreen() {
         Pace: {pace?.slice(0, -2)}:{pace?.slice(-2)}
       </Text>
       <Text style={styles.label}>Sound: {sound}</Text>
-      <Text style={styles.label}>Mode: {mode}</Text>
+      <Text style={styles.label}>
+        Half Step: {halfStep === "true" ? "Yes" : "No"}
+      </Text>
       <Text style={styles.label}>Stride Length: {strideLength} cm</Text>
       <View style={styles.buttons}>
         <Button title="Start" onPress={startLoop} disabled={isPlaying} />

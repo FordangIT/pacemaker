@@ -18,21 +18,15 @@ const paceOptions = Array.from({ length: 15 }, (_, i) => {
 });
 
 const sounds = ["beep", "clave", "footstep", "metronome", "snare"];
-const modes = ["treadmill", "outdoor", "runningmachine"];
-const genders = ["male", "female"];
 
 export default function HomeScreen() {
   const [pace, setPace] = useState("5:30");
   const [sound, setSound] = useState("metronome");
-  const [mode, setMode] = useState("outdoor");
   const [strideLength, setStrideLength] = useState("");
-  const [gender, setGender] = useState<"male" | "female">("female");
   const [height, setHeight] = useState("165");
+  const [halfStep, setHalfStep] = useState(false);
 
-  const estimateStrideLength = (
-    heightCm: number,
-    gender: "male" | "female"
-  ) => {
+  const estimateStrideLength = (heightCm: number) => {
     const strideFactor = 0.9;
     return Math.round(heightCm * strideFactor);
   };
@@ -40,17 +34,17 @@ export default function HomeScreen() {
   useEffect(() => {
     const h = parseFloat(height);
     if (!isNaN(h)) {
-      const estimate = estimateStrideLength(h, gender);
+      const estimate = estimateStrideLength(h);
       setStrideLength(String(estimate));
     }
-  }, [height, gender]);
+  }, [height]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Running Settings</Text>
 
       <View style={styles.block}>
-        <Text style={styles.label}>1km Pace</Text>
+        <Text style={styles.label}>1km/pace</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={pace}
@@ -84,36 +78,6 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.block}>
-        <Text style={styles.label}>Running Mode</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={mode}
-            onValueChange={(itemValue) => setMode(itemValue)}
-            style={styles.picker}
-          >
-            {modes.map((m) => (
-              <Picker.Item label={m} value={m} key={m} />
-            ))}
-          </Picker>
-        </View>
-      </View>
-
-      <View style={styles.block}>
-        <Text style={styles.label}>Gender</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={gender}
-            onValueChange={(itemValue) => setGender(itemValue)}
-            style={styles.picker}
-          >
-            {genders.map((g) => (
-              <Picker.Item label={g} value={g} key={g} />
-            ))}
-          </Picker>
-        </View>
-      </View>
-
-      <View style={styles.block}>
         <Text style={styles.label}>Height (cm)</Text>
         <TextInput
           value={height}
@@ -127,9 +91,24 @@ export default function HomeScreen() {
         <Text style={styles.label}>Estimated Stride Length (cm)</Text>
         <TextInput
           value={strideLength}
-          editable={false}
+          onChangeText={setStrideLength}
+          keyboardType="numeric"
           style={[styles.input, { backgroundColor: "#eee" }]}
         />
+      </View>
+
+      <View style={styles.block}>
+        <Text style={styles.label}>Step Mode</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={halfStep ? "half" : "full"}
+            onValueChange={(value) => setHalfStep(value === "half")}
+            style={styles.picker}
+          >
+            <Picker.Item label="Full Step (Both Feet)" value="full" />
+            <Picker.Item label="Half Step (One Foot Only)" value="half" />
+          </Picker>
+        </View>
       </View>
 
       <Button
@@ -140,8 +119,8 @@ export default function HomeScreen() {
             params: {
               pace: pace.replace(":", ""),
               sound,
-              mode,
-              strideLength
+              strideLength,
+              halfStep: halfStep ? "true" : "false"
             }
           })
         }
