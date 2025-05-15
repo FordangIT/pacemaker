@@ -115,14 +115,13 @@ export default function HomeScreen() {
         title="Start"
         onPress={() =>
           router.push({
-            pathname: "/play/[pace]",
+            pathname: `/play/${pace.replace(":", "")}`,
             params: {
-              pace: pace.replace(":", ""),
               sound,
               strideLength,
               halfStep: halfStep ? "true" : "false"
             }
-          })
+          } as any)
         }
       />
     </ScrollView>

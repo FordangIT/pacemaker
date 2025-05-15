@@ -88,6 +88,9 @@ export default function PlayScreen() {
   );
 }
 
+export const options = {
+  title: "Running Session"
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
