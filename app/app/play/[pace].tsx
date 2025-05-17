@@ -3,7 +3,7 @@ import { calculateStepIntervalMs } from "@/utils/calculateInterval";
 import { Audio } from "expo-av";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function PlayScreen() {
   const { pace, sound, strideLength, halfStep } = useLocalSearchParams();
@@ -71,40 +71,104 @@ export default function PlayScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>
-        Pace: {pace?.slice(0, -2)}:{pace?.slice(-2)}
-      </Text>
-      <Text style={styles.label}>Sound: {sound}</Text>
-      <Text style={styles.label}>
-        Half Step: {halfStep === "true" ? "Yes" : "No"}
-      </Text>
-      <Text style={styles.label}>Stride Length: {strideLength} cm</Text>
-      <View style={styles.buttons}>
-        <Button title="Start" onPress={startLoop} disabled={isPlaying} />
-        <Button title="Stop" onPress={stopLoop} disabled={!isPlaying} />
-        <Button title="Go Back" onPress={() => router.back()} />
+      <View style={styles.infoBox}>
+        <Text style={styles.title}>Current Settings</Text>
+        <Text style={styles.label}>
+          Pace: {pace?.slice(0, -2)}:{pace?.slice(-2)}
+        </Text>
+        <Text style={styles.label}>Sound: {sound}</Text>
+        <Text style={styles.label}>
+          Half Step: {halfStep === "true" ? "Yes" : "No"}
+        </Text>
+        <Text style={styles.label}>Stride Length: {strideLength} cm</Text>
+      </View>
+
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={[styles.button, isPlaying && styles.disabled]}
+          onPress={startLoop}
+          disabled={isPlaying}
+        >
+          <Text style={styles.buttonText}>Start</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, !isPlaying && styles.disabled]}
+          onPress={stopLoop}
+          disabled={!isPlaying}
+        >
+          <Text style={styles.buttonText}>Stop</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>Go Back</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-export const options = {
-  title: "Running Session"
-};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f2f2f2",
     justifyContent: "center",
     alignItems: "center",
+    padding: 24
+  },
+  infoBox: {
+    backgroundColor: "#fff",
     padding: 24,
-    gap: 16
+    borderRadius: 16,
+    width: "100%",
+    maxWidth: 320,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 32
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center"
   },
   label: {
-    fontSize: 20,
+    fontSize: 16,
+    marginBottom: 6
+  },
+  buttonGroup: {
+    width: "100%",
+    maxWidth: 320,
+    gap: 12
+  },
+  button: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center"
+  },
+  disabled: {
+    backgroundColor: "#A5D6A7"
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
     fontWeight: "600"
   },
-  buttons: {
-    gap: 12,
-    marginTop: 24
+  backButton: {
+    backgroundColor: "#e0e0e0",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center"
+  },
+  backButtonText: {
+    color: "#333",
+    fontSize: 16
   }
 });

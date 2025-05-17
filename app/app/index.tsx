@@ -3,11 +3,11 @@ import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Button,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View
 } from "react-native";
 
@@ -43,8 +43,8 @@ export default function HomeScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Running Settings</Text>
 
-      <View style={styles.block}>
-        <Text style={styles.label}>1km/pace</Text>
+      <View style={styles.card}>
+        <Text style={styles.label}>1km Pace</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={pace}
@@ -60,9 +60,7 @@ export default function HomeScreen() {
             ))}
           </Picker>
         </View>
-      </View>
 
-      <View style={styles.block}>
         <Text style={styles.label}>Sound</Text>
         <View style={styles.pickerWrapper}>
           <Picker
@@ -75,9 +73,7 @@ export default function HomeScreen() {
             ))}
           </Picker>
         </View>
-      </View>
 
-      <View style={styles.block}>
         <Text style={styles.label}>Height (cm)</Text>
         <TextInput
           value={height}
@@ -85,9 +81,7 @@ export default function HomeScreen() {
           keyboardType="numeric"
           style={styles.input}
         />
-      </View>
 
-      <View style={styles.block}>
         <Text style={styles.label}>Estimated Stride Length (cm)</Text>
         <TextInput
           value={strideLength}
@@ -95,9 +89,7 @@ export default function HomeScreen() {
           keyboardType="numeric"
           style={[styles.input, { backgroundColor: "#eee" }]}
         />
-      </View>
 
-      <View style={styles.block}>
         <Text style={styles.label}>Step Mode</Text>
         <View style={styles.pickerWrapper}>
           <Picker
@@ -111,8 +103,8 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <Button
-        title="Start"
+      <TouchableOpacity
+        style={styles.startButton}
         onPress={() =>
           router.push({
             pathname: `/play/${pace.replace(":", "")}`,
@@ -123,21 +115,44 @@ export default function HomeScreen() {
             }
           } as any)
         }
-      />
+      >
+        <Text style={styles.startButtonText}>Start Running</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, gap: 24, backgroundColor: "#f9f9f9" },
+  container: {
+    padding: 24,
+    backgroundColor: "#f9f9f9",
+    alignItems: "center"
+  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 24,
     textAlign: "center"
   },
-  label: { fontSize: 18, fontWeight: "600", marginBottom: 8 },
-  block: { marginBottom: 24 },
+  card: {
+    backgroundColor: "#fff",
+    padding: 24,
+    borderRadius: 16,
+    width: "100%",
+    maxWidth: 360,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 32
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 12,
+    marginBottom: 6
+  },
   pickerWrapper: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -155,6 +170,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: "#ccc",
     backgroundColor: "#fff",
-    width: 120
+    width: "100%"
+  },
+  startButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    borderRadius: 12,
+    alignItems: "center"
+  },
+  startButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600"
   }
 });
