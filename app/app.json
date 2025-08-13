@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "RunPacer",
-    "slug": "runpacer",
+    "name": "JoggY",
+    "slug": "joggy",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/runpacer_icon.png",
-    "scheme": "runpacer",
+    "icon": "./assets/images/applogo.png",
+    "scheme": "joggy",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -13,18 +13,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/runpacer_icon.png",
+        "foregroundImage": "./assets/images/applogo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.littlepodang.runpacer"
+      "package": "com.littlepodang.joggy"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/runpacer_splash.png",
+          "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
