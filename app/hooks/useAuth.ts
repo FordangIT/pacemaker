@@ -121,11 +121,23 @@ export function useAuth() {
         );
       }
 
+      // 🆕 사용자 프로필 정보 가져오기 추가
+      const profileRes = await fetch(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`
+          }
+        }
+      );
+      const profile = await profileRes.json();
+
       const data: AuthUser = {
         provider: "google",
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
-        idToken: token.id_token
+        idToken: token.id_token,
+        profile
       };
       await save(data);
     } catch (error) {
@@ -155,7 +167,7 @@ export function useAuth() {
       await request.makeAuthUrlAsync(discovery);
 
       // startAsync 대신 promptAsync 사용
-      const result = await request.promptAsync(discovery);
+      const result = await request.promptAsync(discovery, { useProxy: true });
 
       if (result.type !== "success" || !result.params.code) {
         console.log("Kakao login cancelled or failed");
@@ -185,10 +197,19 @@ export function useAuth() {
         );
       }
 
+      // 🆕 사용자 프로필 정보 가져오기 추가
+      const profileRes = await fetch("https://kapi.kakao.com/v2/user/me", {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      });
+      const profile = await profileRes.json();
+
       const data: AuthUser = {
         provider: "kakao",
         accessToken: token.access_token,
-        refreshToken: token.refresh_token
+        refreshToken: token.refresh_token,
+        profile
       };
       await save(data);
     } catch (error) {
